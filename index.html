@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="備婚小幫手">
+<meta name="theme-color" content="#7C6FCD">
+<title>備婚小幫手</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#7C6FCD;--primary-light:#EDE9FF;--primary-dark:#5547A8;--accent:#E8B4BC;--accent-light:#FDF0F2;--gold:#C9A96E;--gold-light:#FAF3E7;--green:#5BAD8F;--green-light:#E8F5EF;--text:#2A2535;--text-muted:#8B8799;--bg:#FAFAF9;--surface:#FFFFFF;--border:rgba(124,111,205,0.15);--danger:#D95C5C;--danger-light:#FDEAEA;--shadow:0 2px 20px rgba(124,111,205,0.12);--radius:16px;--radius-sm:10px;--bottom-nav:72px;--safe-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+.app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;background:var(--bg)}
+.header{background:var(--surface);padding:52px 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.header-inner{display:flex;align-items:center;justify-content:space-between}
+.header-title{font-family:'Noto Serif TC',serif;font-size:22px;color:var(--text);font-weight:600}
+.header-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+.header-icon{font-size:28px}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(var(--bottom-nav) + 16px + var(--safe-bottom))}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(var(--bottom-nav) + var(--safe-bottom));padding-bottom:var(--safe-bottom);background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all 0.2s;padding-top:8px;border:none;background:none;color:var(--text-muted)}
+.nav-item.active{color:var(--primary)}
+.nav-item svg{width:22px;height:22px}
+.nav-label{font-size:10px;font-weight:500}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);opacity:0;transition:opacity 0.2s}
+.nav-item.active .nav-dot{opacity:1}
+.screen{display:none}
+.screen.active{display:block}
+.card{background:var(--surface);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.countdown-hero{background:linear-gradient(135deg,#7C6FCD 0%,#5547A8 100%);border-radius:var(--radius);padding:28px 20px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden}
+.countdown-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06)}
+.countdown-hero::after{content:'';position:absolute;bottom:-40px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.04)}
+.countdown-days{font-family:'Noto Serif TC',serif;font-size:72px;font-weight:600;color:#fff;line-height:1;position:relative;z-index:1}
+.countdown-label{font-size:14px;color:rgba(255,255,255,.8);margin-top:6px}
+.countdown-date-input{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.countdown-date-input label{font-size:13px;color:rgba(255,255,255,.7)}
+.countdown-date-input input{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 10px;font-size:13px;color:#fff;outline:none;font-family:'Noto Sans TC',sans-serif}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-card{background:var(--surface);border-radius:var(--radius-sm);padding:14px 10px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:24px;font-weight:500;color:var(--primary)}
+.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:2px}
+.progress-item{margin-bottom:14px}
+.progress-item:last-child{margin-bottom:0}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-name{font-size:13px;color:var(--text)}
+.progress-pct{font-size:13px;color:var(--text-muted)}
+.progress-track{height:6px;border-radius:999px;background:var(--primary-light);overflow:hidden}
+.progress-fill{height:100%;border-radius:999px;background:var(--primary);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.progress-fill.green{background:var(--green)}
+.progress-fill.pink{background:var(--accent)}
+.input-row{display:flex;gap:8px;margin-bottom:12px}
+.input-row input,.input-row select{flex:1;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);outline:none;transition:border-color .2s}
+.input-row input:focus,.input-row select:focus{border-color:var(--primary)}
+.add-btn{padding:10px 16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.add-btn:active{background:var(--primary-dark)}
+.todo-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.todo-item:last-child{border-bottom:none}
+.todo-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;background:transparent}
+.todo-check.checked{background:var(--primary);border-color:var(--primary)}
+.todo-check.checked::after{content:'✓';color:#fff;font-size:12px;font-weight:600}
+.todo-text{flex:1;font-size:14px}
+.todo-text.done{text-decoration:line-through;color:var(--text-muted)}
+.tag-pill{font-size:11px;padding:3px 8px;border-radius:999px;font-weight:500;flex-shrink:0}
+.tag-venue{background:var(--primary-light);color:var(--primary-dark)}
+.tag-catering{background:var(--green-light);color:var(--green)}
+.tag-attire{background:var(--accent-light);color:#9B5563}
+.tag-photo{background:var(--gold-light);color:#8B6914}
+.tag-other{background:#F3F3F3;color:#666}
+.del-btn{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;transition:color .2s}
+.del-btn:active{color:var(--danger)}
+.budget-bar-wrap{background:var(--primary-light);border-radius:999px;height:8px;margin:8px 0 4px;overflow:hidden}
+.budget-bar{height:100%;border-radius:999px;background:var(--primary);transition:width .5s}
+.budget-bar.over{background:var(--danger)}
+.budget-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.budget-item:last-child{border-bottom:none}
+.budget-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.budget-cat{flex:1;font-size:14px}
+.budget-amt{font-size:14px;font-weight:500;color:var(--primary-dark)}
+.total-budget-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.total-budget-row label{font-size:13px;color:var(--text-muted);white-space:nowrap}
+.total-budget-row input{flex:1;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;font-size:14px;font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);outline:none}
+.total-budget-row input:focus{border-color:var(--primary)}
+.guest-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.guest-item:last-child{border-bottom:none}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0}
+.guest-info{flex:1}
+.guest-name{font-size:14px}
+.guest-side{font-size:11px;color:var(--text-muted)}
+.rsvp-btn{font-size:11px;padding:4px 10px;border-radius:999px;font-weight:500;border:none;cursor:pointer;transition:all .15s}
+.rsvp-pending{background:var(--gold-light);color:#8B6914}
+.rsvp-yes{background:var(--green-light);color:var(--green)}
+.rsvp-no{background:var(--danger-light);color:var(--danger)}
+.empty-state{text-align:center;padding:32px 16px;color:var(--text-muted);font-size:14px}
+.empty-icon{font-size:36px;margin-bottom:8px}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-inner">
+      <div>
+        <div class="header-title" id="headerTitle">婚禮倒數</div>
+        <div class="header-subtitle" id="headerSub">你們的美好旅程</div>
+      </div>
+      <div class="header-icon" id="headerIcon">💍</div>
+    </div>
+  </div>
+  <div class="content">
+    <div id="screen-countdown" class="screen active">
+      <div class="countdown-hero">
+        <div class="countdown-days" id="daysCount">—</div>
+        <div class="countdown-label">距離婚禮還有幾天</div>
+        <div class="countdown-date-input">
+          <label>婚禮日期</label>
+          <input type="date" id="weddingDate" onchange="saveDate()">
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="weeksLeft">—</div><div class="stat-lbl">週</div></div>
+        <div class="stat-card"><div class="stat-num" id="monthsLeft">—</div><div class="stat-lbl">月</div></div>
+        <div class="stat-card"><div class="stat-num" id="donePercent">0%</div><div class="stat-lbl">完成率</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">籌備進度</div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">待辦事項</span><span class="progress-pct" id="todoProgressTxt">0%</span></div>
+          <div class="progress-track"><div class="progress-fill" id="todoProgressBar" style="width:0%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">預算使用</span><span class="progress-pct" id="budgetProgressTxt">0%</span></div>
+          <div class="progress-track"><div class="progress-fill green" id="budgetProgressBar" style="width:0%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-name">賓客確認</span><span class="progress-pct" id="guestProgressTxt">0%</span></div>
+          <div class="progress-track"><div class="progress-fill pink" id="guestProgressBar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="screen-todo" class="screen">
+      <div class="card">
+        <div class="input-row">
+          <input type="text" id="todoInput" placeholder="新增待辦事項…" onkeydown="if(event.key==='Enter')addTodo()">
+          <select id="todoTag">
+            <option value="venue">場地</option>
+            <option value="catering">餐飲</option>
+            <option value="attire">服裝</option>
+            <option value="photo">攝影</option>
+            <option value="other">其他</option>
+          </select>
+          <button class="add-btn" onclick="addTodo()">新增</button>
+        </div>
+        <div id="todoList"></div>
+      </div>
+    </div>
+    <div id="screen-budget" class="screen">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="totalBudgetStat" style="font-size:16px">—</div><div class="stat-lbl">總預算</div></div>
+        <div class="stat-card"><div class="stat-num" id="spentStat" style="font-size:16px;color:var(--green)">—</div><div class="stat-lbl">已花費</div></div>
+        <div class="stat-card"><div class="stat-num" id="remainStat" style="font-size:16px">—</div><div class="stat-lbl">剩餘</div></div>
+      </div>
+      <div class="card">
+        <div class="total-budget-row">
+          <label>總預算 NT$</label>
+          <input type="number" id="totalBudgetInput" placeholder="輸入總預算" oninput="saveBudgetTotal()">
+        </div>
+        <div class="budget-bar-wrap"><div class="budget-bar" id="mainBudgetBar" style="width:0%"></div></div>
+        <div style="font-size:12px;color:var(--text-muted)" id="budgetBarLabel">尚未設定預算</div>
+      </div>
+      <div class="card">
+        <div class="card-title">費用項目</div>
+        <div class="input-row">
+          <input type="text" id="budgetCatInput" placeholder="項目名稱">
+          <input type="number" id="budgetAmtInput" placeholder="金額" onkeydown="if(event.key==='Enter')addBudget()">
+          <button class="add-btn" onclick="addBudget()">新增</button>
+        </div>
+        <div id="budgetList"></div>
+      </div>
+    </div>
+    <div id="screen-guest" class="screen">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="totalGuestStat">0</div><div class="stat-lbl">總賓客</div></div>
+        <div class="stat-card"><div class="stat-num" id="confirmedStat" style="color:var(--green)">0</div><div class="stat-lbl">出席</div></div>
+        <div class="stat-card"><div class="stat-num" id="pendingStat" style="color:var(--gold)">0</div><div class="stat-lbl">待確認</div></div>
+      </div>
+      <div class="card">
+        <div class="input-row">
+          <input type="text" id="guestNameInput" placeholder="賓客姓名" onkeydown="if(event.key==='Enter')addGuest()">
+          <select id="guestSideInput">
+            <option value="bride">新娘方</option>
+            <option value="groom">新郎方</option>
+          </select>
+          <button class="add-btn" onclick="addGuest()">新增</button>
+        </div>
+        <div id="guestList"></div>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchScreen('countdown',this,'婚禮倒數','你們的美好旅程','💍')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span class="nav-label">倒數</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="switchScreen('todo',this,'待辦清單','記下每件大小事','✅')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span class="nav-label">待辦</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="switchScreen('budget',this,'預算管理','精打細算每一分','💰')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      <span class="nav-label">預算</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="switchScreen('guest',this,'賓客名單','邀請最重要的人','👥')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span class="nav-label">賓客</span><div class="nav-dot"></div>
+    </button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const tagNames={venue:'場地',catering:'餐飲',attire:'服裝',photo:'攝影',other:'其他'};
+const budgetColors=['#7C6FCD','#5BAD8F','#E8B4BC','#C9A96E','#D95C5C','#4E9BD4'];
+const avatarColors=[['#EDE9FF','#5547A8'],['#E8F5EF','#2D7A5F'],['#FDF0F2','#9B5563'],['#FAF3E7','#8B6914'],['#E6F0FF','#1E4D8C']];
+let state={weddingDate:'',totalBudget:0,todos:[{id:1,text:'預訂婚宴場地',tag:'venue',done:false},{id:2,text:'試穿婚紗',tag:'attire',done:false},{id:3,text:'確認婚攝',tag:'photo',done:false},{id:4,text:'選定喜帖設計',tag:'other',done:false}],budgets:[{id:1,cat:'婚宴場地',amt:150000},{id:2,cat:'婚紗禮服',amt:40000}],guests:[{id:1,name:'王大明',side:'groom',rsvp:'pending'},{id:2,name:'李小花',side:'bride',rsvp:'yes'},{id:3,name:'張志偉',side:'groom',rsvp:'pending'}],nextId:10};
+function save(){try{localStorage.setItem('wedding_pwa',JSON.stringify(state))}catch(e){}}
+function load(){try{const d=localStorage.getItem('wedding_pwa');if(d)state=JSON.parse(d)}catch(e){}}
+function switchScreen(name,btn,title,sub,icon){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');btn.classList.add('active');document.getElementById('headerTitle').textContent=title;document.getElementById('headerSub').textContent=sub;document.getElementById('headerIcon').textContent=icon;renderAll()}
+function saveDate(){state.weddingDate=document.getElementById('weddingDate').value;save();updateCountdown()}
+function updateCountdown(){if(!state.weddingDate)return;const diff=Math.ceil((new Date(state.weddingDate)-new Date())/86400000);document.getElementById('daysCount').textContent=diff>0?diff:0;document.getElementById('weeksLeft').textContent=diff>0?Math.floor(diff/7):0;document.getElementById('monthsLeft').textContent=diff>0?Math.floor(diff/30):0}
+function renderTodos(){const el=document.getElementById('todoList');if(!el)return;if(!state.todos.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div>新增你的第一個待辦事項</div>';return}el.innerHTML=state.todos.map(t=>`<div class="todo-item"><div class="todo-check ${t.done?'checked':''}" onclick="toggleTodo(${t.id})"></div><span class="todo-text ${t.done?'done':''}">${t.text}</span><span class="tag-pill tag-${t.tag}">${tagNames[t.tag]}</span><button class="del-btn" onclick="deleteTodo(${t.id})">×</button></div>`).join('');updateProgress()}
+function addTodo(){const inp=document.getElementById('todoInput');const tag=document.getElementById('todoTag').value;if(!inp.value.trim())return;state.todos.push({id:state.nextId++,text:inp.value.trim(),tag,done:false});inp.value='';save();renderTodos();showToast('已新增待辦事項')}
+function toggleTodo(id){state.todos=state.todos.map(t=>t.id===id?{...t,done:!t.done}:t);save();renderTodos()}
+function deleteTodo(id){state.todos=state.todos.filter(t=>t.id!==id);save();renderTodos()}
+function updateProgress(){const total=state.todos.length;const done=state.todos.filter(t=>t.done).length;const pct=total?Math.round(done/total*100):0;document.getElementById('donePercent').textContent=pct+'%';document.getElementById('todoProgressTxt').textContent=pct+'%';document.getElementById('todoProgressBar').style.width=pct+'%'}
+function renderBudgets(){const el=document.getElementById('budgetList');if(!el)return;if(!state.budgets.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">💳</div>新增第一筆費用項目</div>'}else el.innerHTML=state.budgets.map((b,i)=>`<div class="budget-item"><div class="budget-dot" style="background:${budgetColors[i%6]}"></div><span class="budget-cat">${b.cat}</span><span class="budget-amt">NT$ ${b.amt.toLocaleString()}</span><button class="del-btn" onclick="deleteBudget(${b.id})">×</button></div>`).join('');updateBudgetStats()}
+function saveBudgetTotal(){state.totalBudget=parseInt(document.getElementById('totalBudgetInput').value)||0;save();updateBudgetStats()}
+function addBudget(){const cat=document.getElementById('budgetCatInput').value.trim();const amt=parseInt(document.getElementById('budgetAmtInput').value)||0;if(!cat||!amt)return;state.budgets.push({id:state.nextId++,cat,amt});document.getElementById('budgetCatInput').value='';document.getElementById('budgetAmtInput').value='';save();renderBudgets();showToast('已新增費用項目')}
+function deleteBudget(id){state.budgets=state.budgets.filter(b=>b.id!==id);save();renderBudgets()}
+function updateBudgetStats(){const total=state.totalBudget;const spent=state.budgets.reduce((s,b)=>s+b.amt,0);const remain=total-spent;const pct=total?Math.min(Math.round(spent/total*100),100):0;document.getElementById('totalBudgetStat').textContent=total?'NT$'+total.toLocaleString():'—';document.getElementById('spentStat').textContent=spent?'NT$'+spent.toLocaleString():'—';document.getElementById('remainStat').textContent=total?(remain>=0?'NT$'+remain.toLocaleString():'超支'):'—';document.getElementById('remainStat').style.color=remain<0?'var(--danger)':'var(--primary)';document.getElementById('mainBudgetBar').style.width=pct+'%';document.getElementById('mainBudgetBar').className='budget-bar'+(spent>total&&total>0?' over':'');document.getElementById('budgetBarLabel').textContent=total?`已使用 ${pct}%（NT$ ${spent.toLocaleString()} / ${total.toLocaleString()}）`:'請設定總預算';document.getElementById('budgetProgressBar').style.width=pct+'%';document.getElementById('budgetProgressTxt').textContent=pct+'%'}
+function renderGuests(){const el=document.getElementById('guestList');if(!el)return;if(!state.guests.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">👫</div>新增你的第一位賓客</div>';updateGuestStats();return}el.innerHTML=state.guests.map((g,i)=>{const[bg,fg]=avatarColors[i%5];return`<div class="guest-item"><div class="avatar" style="background:${bg};color:${fg}">${g.name.slice(0,1)}</div><div class="guest-info"><div class="guest-name">${g.name}</div><div class="guest-side">${g.side==='bride'?'新娘方':'新郎方'}</div></div><button class="rsvp-btn rsvp-${g.rsvp}" onclick="cycleRsvp(${g.id})">${{pending:'待確認',yes:'出席',no:'不出席'}[g.rsvp]}</button><button class="del-btn" onclick="deleteGuest(${g.id})">×</button></div>`}).join('');updateGuestStats()}
+function addGuest(){const name=document.getElementById('guestNameInput').value.trim();const side=document.getElementById('guestSideInput').value;if(!name)return;state.guests.push({id:state.nextId++,name,side,rsvp:'pending'});document.getElementById('guestNameInput').value='';save();renderGuests();showToast('已新增賓客')}
+function cycleRsvp(id){const order=['pending','yes','no'];state.guests=state.guests.map(g=>g.id===id?{...g,rsvp:order[(order.indexOf(g.rsvp)+1)%3]}:g);save();renderGuests()}
+function deleteGuest(id){state.guests=state.guests.filter(g=>g.id!==id);save();renderGuests()}
+function updateGuestStats(){const total=state.guests.length;const confirmed=state.guests.filter(g=>g.rsvp==='yes').length;const pending=state.guests.filter(g=>g.rsvp==='pending').length;document.getElementById('totalGuestStat').textContent=total;document.getElementById('confirmedStat').textContent=confirmed;document.getElementById('pendingStat').textContent=pending;const pct=total?Math.round(confirmed/total*100):0;document.getElementById('guestProgressBar').style.width=pct+'%';document.getElementById('guestProgressTxt').textContent=pct+'%'}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function renderAll(){updateCountdown();renderTodos();renderBudgets();renderGuests()}
+load();
+const d=new Date();d.setMonth(d.getMonth()+9);
+document.getElementById('weddingDate').value=state.weddingDate||(d.toISOString().split('T')[0]);
+if(!state.weddingDate){state.weddingDate=document.getElementById('weddingDate').value}
+if(state.totalBudget)document.getElementById('totalBudgetInput').value=state.totalBudget;
+renderAll();
+</script>
+</body>
+</html>
